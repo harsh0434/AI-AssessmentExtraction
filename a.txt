@@ -1,0 +1,2 @@
+Q2. Next.js is a React framework.
+Q1. React is a UI library.
