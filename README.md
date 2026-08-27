@@ -40,7 +40,25 @@ This application allows teachers to upload a question paper and a student's hand
 This project is deployment-ready for platforms like Vercel. 
 Simply push to GitHub and import the project in Vercel, ensuring you add the `GEMINI_API_KEY` to your Vercel Environment Variables. No other configuration is needed as it uses Next.js App Router seamlessly.
 
-## Limitations & Future Improvements
-- **OCR Accuracy**: While Gemini 1.5 Pro bounding boxes are generally good, a dedicated OCR service like Google Cloud Vision Document AI provides slightly more pixel-perfect bounding polygons for cursive handwriting. 
-- **AI Confidence**: AI-generated mappings should always be treated as a starting point. The "Low Confidence" flag correctly guides the teacher to verify uncertain mappings.
-- **Future Enhancements**: Implement a human-in-the-loop correction feature allowing teachers to manually redraw bounding boxes or remap answers, improving the system over time via few-shot prompting or fine-tuning.
+## Assignment Submission Details
+
+**Live deployed URL:**
+[https://aiassessmentextraction.vercel.app/](https://aiassessmentextraction.vercel.app/)
+
+**GitHub repository:**
+[https://github.com/harsh0434/AI-Assessment-Extraction](https://github.com/harsh0434/AI-Assessment-Extraction)
+
+**Brief explanation of your approach:**
+I built the application using Next.js (App Router), React, and Tailwind CSS. To avoid the complexity of an unnecessary backend database, I implemented an in-memory state management system using React Context, allowing seamless data flow between the Upload and Assessment screens. 
+
+For the core flow, I utilized a hybrid AI mapping architecture. The system first prompts the AI to extract and structure the questions logically (treating sub-parts like `11(a)` as distinct entries). Then, it processes the student's answer sheet in a single multimodal pass to extract the handwriting, calculate normalized bounding box coordinates (`x, y, width, height`), and semantically map each answer to the correct question ID regardless of the order they were written in. Finally, the UI renders the original document using `react-pdf` and overlays responsive CSS bounding-boxes based on the active question. 
+
+As a bonus feature, I implemented the optional AI Grading system. The AI evaluates the correctness of the answer, provides a score out of 10, generates 1-2 sentences of feedback, and the UI displays a Total Estimated Score summary.
+
+**AI model/API used:**
+Gemini 3.6 Flash via the `@google/genai` SDK. I chose this model because it natively supports extracting highly accurate multimodal spatial coordinates (bounding polygons) alongside semantic transcription and reasoning in a single pass. This eliminated the need for a separate, complex OCR pipeline while easily handling edge cases like unmatched text and missing answers. 
+
+**Any important assumptions or limitations:**
+1. **Handwriting Legibility:** The system assumes the uploaded handwritten answer sheet is legible enough for standard multimodal vision models to parse. Extremely poor handwriting may result in a "Low Confidence" flag.
+2. **AI Grading Estimation:** The AI-generated scores and feedback are estimations designed to act as a teacher's assistant. They should be manually verified by the teacher for final grading. 
+3. **In-Memory Storage:** As per the requirements, no database was used. If the user refreshes the page during the Assessment Review, the session data is cleared, and they will need to re-upload the files.
